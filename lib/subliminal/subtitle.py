@@ -205,7 +205,7 @@ def guess_matches(video, guess, partial=False):
         if video.title and 'episode_title' in guess and sanitize(guess['episode_title']) == sanitize(video.title):
             matches.add('title')
         # season
-        if video.season and 'season' in guess and guess['season'] == video.season:
+        if video.season and (('season' in guess and guess['season'] == video.season) or (video.season == 1 and 'season' not in guess )):
             matches.add('season')
         # episode
         if video.episode and 'episode' in guess and guess['episode'] == video.episode:
