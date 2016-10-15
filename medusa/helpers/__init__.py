@@ -1790,10 +1790,10 @@ def get_broken_providers():
     url = '{base_url}/providers/broken_providers.json'.format(base_url=app.BASE_PYMEDUSA_URL)
     response = get_url(url, session=make_session(), returns='json')
     if response is None:
-        log.warning('Unable to update the list with broken providers.'
-                    ' This list is used to disable broken providers.'
-                    ' You may encounter errors in the log files if you are'
-                    ' using a broken provider.')
+        log.debug('Unable to update the list with broken providers.'
+                  ' This list is used to disable broken providers.'
+                  ' You may encounter errors in the log files if you are'
+                  ' using a broken provider.')
         return []
 
     log.info('Broken providers found: {0}', response)
