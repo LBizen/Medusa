@@ -37,7 +37,7 @@ from subliminal.score import episode_scores
 from subliminal.subtitle import get_subtitle_path
 from . import app, db, helpers, history
 from .cache import cache, memory_cache
-from .common import Quality, cpu_presets
+from .common import Quality, UNKNOWN, cpu_presets
 from .helper.common import dateTimeFormat, episode_num, remove_extension, subtitle_extensions
 from .helper.exceptions import ex
 from .helpers import is_media_file, is_rar_file
@@ -387,6 +387,9 @@ def download_subtitles(tv_episode, video_path=None, subtitles=True, embedded_sub
     ep_num = episode_num(season, episode) or episode_num(season, episode, numbering='absolute')
     subtitles_dir = get_subtitles_dir(video_path)
 
+    if tv_episode.status == UNKNOWN:
+        logger.warning(u'Current tv episode object: %s', str(tv_episode))
+
     if lang:
         logger.debug(u'Force re-downloading subtitle language: %s', lang)
         languages = {from_code(lang)}
@@ -482,6 +485,7 @@ def save_subs(tv_episode, video, found_subtitles, video_path=None):
                                    episode=episode, episode_name=episode_name, show_indexerid=show_indexerid)
 
         if app.SUBTITLES_HISTORY:
+            logger.debug(u'Using tv episode object to save subtitles: %s', str(tv_episode))
             logger.debug(u'Logging to history downloaded subtitle from provider %s and language %s',
                          subtitle.provider_name, subtitle.language.opensubtitles)
             history.logSubtitle(show_indexerid, season, episode, status, subtitle)
