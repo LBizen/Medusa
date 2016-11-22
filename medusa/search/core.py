@@ -428,6 +428,9 @@ def search_for_needed_episodes(force=False):
             log.debug(u'Not checking for needed episodes of {0} because the show is paused', cur_show.name)
             continue
         episodes.extend(wanted_episodes(cur_show, from_date))
+    log.info('Found {wanted_ep} wanted episodes: {wanted_list}'.format(
+        wanted_ep=len(episodes),
+        wanted_list=[ep.series.name + ' ' + episode_num(ep.season, ep.episode) for ep in episodes]))
 
     if not episodes and not force:
         # nothing wanted so early out, ie: avoid whatever arbitrarily
