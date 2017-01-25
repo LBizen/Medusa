@@ -317,7 +317,7 @@ class TransmissionAPI(GenericClient):
                 status = 'seeding'
 
             if status == 'completed':
-                log.info(
+                log.debug(
                     'Torrent completed and reached minimum'
                     ' ratio: [{ratio:.3f}/{ratio_limit:.3f}] or'
                     ' seed idle limit: [{seed_limit} min].'
@@ -333,7 +333,8 @@ class TransmissionAPI(GenericClient):
                             name=torrent['name'])
             elif status == 'unregistered':
                 log.warning('Torrent was unregistered from tracker.'
-                            ' Check it: [{name}]', name=torrent['name'])
+                            ' Removing it: [{name}]', name=torrent['name'])
+                self.remove_torrent(torrent['hashString'])
             elif status == 'seeding':
                 if float(torrent['uploadRatio']) < float(torrent['seedRatioLimit']):
                     log.info(
