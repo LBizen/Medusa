@@ -258,8 +258,7 @@ MEDUSA.common.init = function() {
 
     $('.addQTip').each(function() {
         $(this).css({
-            'cursor': 'help', // eslint-disable-line quote-props
-            'text-shadow': '0px 0px 0.5px #666'
+            'cursor': 'help' // eslint-disable-line quote-props
         });
 
         var my = $(this).data('qtip-my') || 'left center';
@@ -278,7 +277,7 @@ MEDUSA.common.init = function() {
                     corner: true,
                     method: 'polygon'
                 },
-                classes: 'qtip-rounded qtip-shadow ui-tooltip-sb'
+                classes: 'qtip-rounded ui-tooltip-sb'
             }
         });
     });
