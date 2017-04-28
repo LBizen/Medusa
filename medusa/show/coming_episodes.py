@@ -16,11 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Medusa. If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from medusa.helpers.quality import get_quality_string
 from medusa.tv.series import SeriesIdentifier
-from .. import app
+
+from .. import app, network_timezones
 from ..common import IGNORED, Quality, UNAIRED, WANTED
 from ..db import DBConnection
 from ..helper.common import dateFormat, timeFormat
@@ -29,12 +30,14 @@ from ..sbdatetime import sbdatetime
 
 
 class ComingEpisodes(object):
-    """
-    Missed:   yesterday...(less than 1 week)
+    """Coming Episodes class used by API and UI.
+
+    Missed:   air datetime less equal than current datetime
     Today:    today
     Soon:     tomorrow till next week
     Later:    later than next week
     """
+
     categories = ['later', 'missed', 'soon', 'today']
     sorts = {
         'date': (lambda a, b: cmp(a['localtime'], b['localtime'])),
@@ -47,20 +50,20 @@ class ComingEpisodes(object):
 
     @staticmethod
     def get_coming_episodes(categories, sort, group, paused=app.COMING_EPS_DISPLAY_PAUSED):
-        """
+        """Return coming episodes (schedule).
+
         :param categories: The categories of coming episodes. See ``ComingEpisodes.categories``
         :param sort: The sort to apply to the coming episodes. See ``ComingEpisodes.sorts``
         :param group: ``True`` to group the coming episodes by category, ``False`` otherwise
         :param paused: ``True`` to include paused shows, ``False`` otherwise
         :return: The list of coming episodes
         """
-
         categories = ComingEpisodes._get_categories(categories)
         sort = ComingEpisodes._get_sort(sort)
 
-        today = date.today().toordinal()
-        next_week = (date.today() + timedelta(days=7)).toordinal()
-        recently = (date.today() - timedelta(days=app.COMING_EPS_MISSED_RANGE)).toordinal()
+        today = datetime.now().replace(tzinfo=network_timezones.app_timezone)
+        next_week = (today + timedelta(days=7))
+        recently = (today - timedelta(days=app.COMING_EPS_MISSED_RANGE))
         qualities_list = Quality.DOWNLOADED + Quality.SNATCHED + Quality.SNATCHED_BEST + Quality.SNATCHED_PROPER + Quality.ARCHIVED + [IGNORED]
 
         db = DBConnection()
@@ -76,7 +79,7 @@ class ComingEpisodes(object):
             'AND airdate < ? '
             'AND s.indexer_id = e.showid '
             'AND e.status NOT IN (' + ','.join(['?'] * len(qualities_list)) + ')',
-            [today, next_week] + qualities_list
+            [today.toordinal(), next_week.toordinal()] + qualities_list
         )
 
         done_shows_list = [int(result['showid']) for result in results]
@@ -96,7 +99,7 @@ class ComingEpisodes(object):
                                                   'AND inner_e.airdate >= ? '
                                                   'ORDER BY inner_e.airdate ASC LIMIT 1) '
                                                   'AND e.status NOT IN (' + placeholder2 + ')',
-            done_shows_list + [next_week] + Quality.DOWNLOADED + Quality.SNATCHED + Quality.SNATCHED_BEST + Quality.SNATCHED_PROPER
+            done_shows_list + [next_week.toordinal()] + Quality.DOWNLOADED + Quality.SNATCHED + Quality.SNATCHED_BEST + Quality.SNATCHED_PROPER
         )
 
         results += db.select(
@@ -108,7 +111,7 @@ class ComingEpisodes(object):
             'AND airdate >= ? '
             'AND e.status IN (?,?) '
             'AND e.status NOT IN (' + ','.join(['?'] * len(qualities_list)) + ')',
-            [today, recently, WANTED, UNAIRED] + qualities_list
+            [today.toordinal(), recently.toordinal(), WANTED, UNAIRED] + qualities_list
         )
 
         results = [dict(result) for result in results]
@@ -132,11 +135,11 @@ class ComingEpisodes(object):
             result['airs'] = str(result['airs']).replace('am', ' AM').replace('pm', ' PM').replace('  ', ' ')
             result['airdate'] = result['localtime'].toordinal()
 
-            if result['airdate'] < today:
+            if result['localtime'] < today:
                 category = 'missed'
-            elif result['airdate'] >= next_week:
+            elif result['localtime'] >= next_week:
                 category = 'later'
-            elif result['airdate'] == today:
+            elif result['localtime'] == today:
                 category = 'today'
             else:
                 category = 'soon'
