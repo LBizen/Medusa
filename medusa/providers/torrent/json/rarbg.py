@@ -11,6 +11,7 @@ import traceback
 
 from medusa import (
     app,
+    config,
     tv,
 )
 from medusa.helper.common import convert_size, try_int
@@ -90,6 +91,19 @@ class RarbgProvider(TorrentProvider):
                 search_params['sort'] = self.sorting if self.sorting else 'seeders'
                 search_params['mode'] = 'search'
                 search_params['search_tvdb'] = self._get_tvdb_id()
+
+                # Override search strings to use tvdb search only
+                if search_params['search_tvdb']:
+                    if mode == 'Episode':
+                        tvdb_search_string = config.naming_ep_type[2] % {
+                            'seasonnumber': ep_obj.season,
+                            'episodenumber': ep_obj.episode,
+                        }
+                    else:
+                        tvdb_search_string = config.naming_season_type[2] % {
+                            'seasonnumber': ep_obj.season
+                        }
+                    search_strings[mode] = [tvdb_search_string]
 
             for search_string in search_strings[mode]:
                 if mode != 'RSS':
