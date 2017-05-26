@@ -1020,6 +1020,12 @@ def get_show(name, try_indexers=False):
             if show_id:
                 show = Show.find(app.showList, int(show_id))
 
+        if not show:
+            match_name_only = [s for s in app.showList if text_type(s.imdb_year) in s.name and
+                               name == s.name.replace(u' ({year})'.format(year=s.imdb_year), u'')]
+            if match_name_only:
+                log.warning("Consider adding '{name}' in scene exceptions".format(name=name))
+
         # add show to cache
         if show and not from_cache:
             name_cache.addNameToCache(name, show.indexerid)
