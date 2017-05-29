@@ -446,7 +446,17 @@ class LegendasTVProvider(Provider):
         else:
             title = video.title
 
-        return [s for l in languages for s in self.query(l, title, season=season, episode=episode, year=video.year)]
+        found_subtitles = [s for l in languages for s in
+                           self.query(l, title, season=season, episode=episode, year=video.year)]
+        if not found_subtitles and 'marve' in title.lower():
+            title = title.lower().replace("marvel's ", '').replace('marvels ', '')
+            found_subtitles = [s for l in languages for s in
+                               self.query(l, title, season=season, episode=episode, year=video.year)]
+        if not found_subtitles and 'legends of tomorrow' in title.lower():
+            title = 'dc’s legends of tomorrow'
+            found_subtitles = [s for l in languages for s in
+                               self.query(l, title, season=season, episode=episode, year=video.year)]
+        return found_subtitles
 
     def download_subtitle(self, subtitle):
         # download archive in case we previously hit the releases cache and didn't download it
