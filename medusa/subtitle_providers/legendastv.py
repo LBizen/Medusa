@@ -289,7 +289,7 @@ class LegendasTVProvider(Provider):
                     if match:
                         title['season'] = int(match.group('season'))
                     else:
-                        logger.warning('No season detected for title %d', title_id)
+                        logger.warning('No season detected for title id: %d and title: %s', title_id, name)
 
             # extract year
             if year:
@@ -403,16 +403,21 @@ class LegendasTVProvider(Provider):
         for title_id, t in titles.items():
             # discard mismatches on title
             if sanitize(t['title']) != sanitize(title):
+                logger.debug("Title id: %s sanitized title did not matched: '%s'. Wanted: '%s', discarding title: %s",
+                             title_id, sanitize(t['title']), sanitize(title), t['title'])
                 continue
 
             # episode
             if season and episode:
                 # discard mismatches on type
                 if t['type'] != 'episode':
+                    logger.debug('Title id: %s is not an episode, discarding title: %s', title_id, t['title'])
                     continue
 
                 # discard mismatches on season
                 if 'season' not in t or t['season'] != season:
+                    logger.debug('Title id: %s did not matched season: %s. Wanted: %s, discarding title: %s',
+                                 title_id, t.get('season'), season, t['title'])
                     continue
             # movie
             else:
@@ -438,6 +443,8 @@ class LegendasTVProvider(Provider):
                 if season and episode:
                     # discard mismatches on episode in non-pack archives
                     if not a.pack and 'episode' in guess and guess['episode'] != episode:
+                        logger.debug('Title id: %s episode in pack did not matched: %s. Wanted: %s,'
+                                     'discarding title: %s', title_id, guess['episode'], episode, t['title'])
                         continue
 
                 # compute an expiration time based on the archive timestamp
