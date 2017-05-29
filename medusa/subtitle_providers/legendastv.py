@@ -21,7 +21,7 @@ from zipfile import ZipFile, is_zipfile
 
 from subliminal.providers import ParserBeautifulSoup, Provider
 from subliminal import __short_version__
-from subliminal.cache import SHOW_EXPIRATION_TIME, region
+from subliminal.cache import region
 from subliminal.exceptions import AuthenticationError, ConfigurationError, ProviderError
 from subliminal.subtitle import SUBTITLE_EXTENSIONS, Subtitle, fix_line_ending, guess_matches, sanitize
 from subliminal.video import Episode, Movie
@@ -243,7 +243,6 @@ class LegendasTVProvider(Provider):
         self.session.close()
 
     @retry((requests.exceptions.ConnectionError, socket_timeout,))
-    @region.cache_on_arguments(expiration_time=SHOW_EXPIRATION_TIME)
     def search_titles(self, title):
         """Search for titles matching the `title`.
 
