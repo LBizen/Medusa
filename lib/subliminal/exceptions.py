@@ -27,3 +27,8 @@ class TooManyRequests(ProviderError):
 class DownloadLimitExceeded(ProviderError):
     """Exception raised by providers when download limit is exceeded."""
     pass
+
+
+class ServiceUnavailable(ProviderError):
+    """Exception raised by providers when download limit is exceeded."""
+    pass

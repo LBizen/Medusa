@@ -15,7 +15,7 @@ from ssl import SSLError
 
 from . import Provider, TimeoutSafeTransport
 from .. import __short_version__
-from ..exceptions import AuthenticationError, ConfigurationError, DownloadLimitExceeded, ProviderError
+from ..exceptions import AuthenticationError, ConfigurationError, DownloadLimitExceeded, ProviderError, ServiceUnavailable
 from ..subtitle import Subtitle, fix_line_ending, guess_matches
 from ..utils import sanitize
 from ..video import Episode, Movie
@@ -304,11 +304,6 @@ class UnknownUserAgent(OpenSubtitlesError, AuthenticationError):
 
 class DisabledUserAgent(OpenSubtitlesError, AuthenticationError):
     """Exception raised when status is '415 Disabled user agent'."""
-    pass
-
-
-class ServiceUnavailable(OpenSubtitlesError):
-    """Exception raised when status is '503 Service Unavailable'."""
     pass
 
 

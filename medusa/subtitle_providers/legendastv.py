@@ -22,7 +22,7 @@ from zipfile import ZipFile, is_zipfile
 from subliminal.providers import ParserBeautifulSoup, Provider
 from subliminal import __short_version__
 from subliminal.cache import region
-from subliminal.exceptions import AuthenticationError, ConfigurationError, ProviderError
+from subliminal.exceptions import AuthenticationError, ConfigurationError, ProviderError, ServiceUnavailable
 from subliminal.subtitle import SUBTITLE_EXTENSIONS, Subtitle, fix_line_ending, guess_matches, sanitize
 from subliminal.video import Episode, Movie
 
@@ -221,7 +221,7 @@ class LegendasTVProvider(Provider):
             logger.info('Logging in')
             data = {'_method': 'POST', 'data[User][username]': self.username, 'data[User][password]': self.password}
             r = self.session.post(self.server_url + 'login', data, allow_redirects=False, timeout=10)
-            r.raise_for_status()
+            self._raise_for_status(r)
 
             soup = ParserBeautifulSoup(r.content, ['html.parser'])
             if soup.find('div', {'class': 'alert-error'}, string=re.compile(u'Usuário ou senha inválidos')):
@@ -236,7 +236,7 @@ class LegendasTVProvider(Provider):
         if self.logged_in:
             logger.info('Logging out')
             r = self.session.get(self.server_url + 'users/logout', allow_redirects=False, timeout=10)
-            r.raise_for_status()
+            self._raise_for_status(r)
             logger.debug('Logged out')
             self.logged_in = False
 
@@ -254,7 +254,7 @@ class LegendasTVProvider(Provider):
         # make the query
         logger.info('Searching title %r', title)
         r = self.session.get(self.server_url + 'legenda/sugestao/{}'.format(title), timeout=10)
-        r.raise_for_status()
+        self._raise_for_status(r)
         results = json.loads(r.text)
 
         # loop over results
@@ -323,7 +323,7 @@ class LegendasTVProvider(Provider):
             url = self.server_url + 'legenda/busca/-/{language}/-/{page}/{title}'.format(
                 language=language_code, page=page, title=title_id)
             r = self.session.get(url)
-            r.raise_for_status()
+            self._raise_for_status(r)
 
             # parse the results
             soup = ParserBeautifulSoup(r.content, ['lxml', 'html.parser'])
@@ -376,7 +376,7 @@ class LegendasTVProvider(Provider):
         """
         logger.info('Downloading archive %s', archive.id)
         r = self.session.get(self.server_url + 'downloadarquivo/{}'.format(archive.id))
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         # open the archive
         archive_stream = io.BytesIO(r.content)
@@ -519,3 +519,11 @@ class LegendasTVProvider(Provider):
 
         # extract subtitle's content
         subtitle.content = fix_line_ending(subtitle.archive.content.read(subtitle.name))
+
+    def _raise_for_status(self, r):
+        """Check a response status before returning it."""
+        # When site is under maintaince and http status code 200.
+        if 'Em breve estaremos de volta' in r.text or r.status_code == 503:
+            logger.info('Site under maintenance. Try again later')
+            raise ServiceUnavailable
+        r.raise_for_status()
