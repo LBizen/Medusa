@@ -8,6 +8,7 @@ import logging
 import operator
 import os.path
 import socket
+from ssl import SSLError
 
 from babelfish import Language, LanguageReverseError
 from guessit import guessit
@@ -81,7 +82,8 @@ class ProviderPool(object):
             self.initialized_providers[name].terminate()
         except (requests.Timeout, socket.timeout):
             logger.error('Provider %r timed out, improperly terminated', name)
-        except (ServiceUnavailable, ProtocolError): # OpenSubtitles raises xmlrpclib.ProtocolError when unavailable
+        except (ServiceUnavailable, ProtocolError, SSLError):
+            # OpenSubtitles raises xmlrpclib.ProtocolError or SSLError when unavailable
             logger.error('Provider %r unavailable, improperly terminated', name)
         except:
             logger.exception('Provider %r terminated unexpectedly', name)
@@ -122,7 +124,8 @@ class ProviderPool(object):
             return self[provider].list_subtitles(video, provider_languages)
         except (requests.Timeout, socket.timeout):
             logger.error('Provider %r timed out', provider)
-        except (ServiceUnavailable, ProtocolError): # OpenSubtitles raises xmlrpclib.ProtocolError when unavailable
+        except (ServiceUnavailable, ProtocolError, SSLError):
+            # OpenSubtitles raises xmlrpclib.ProtocolError or SSLError when unavailable
             logger.error('Provider %r unavailable', provider)
         except:
             logger.exception('Unexpected error in provider %r', provider)
@@ -179,7 +182,8 @@ class ProviderPool(object):
             logger.error('Provider %r timed out, discarding it', subtitle.provider_name)
             self.discarded_providers.add(subtitle.provider_name)
             return False
-        except (ServiceUnavailable, ProtocolError): # OpenSubtitles raises xmlrpclib.ProtocolError when unavailable
+        except (ServiceUnavailable, ProtocolError, SSLError):
+            # OpenSubtitles raises xmlrpclib.ProtocolError or SSLError when unavailable
             logger.error('Provider %r unavailable, discarding it', subtitle.provider_name)
             self.discarded_providers.add(subtitle.provider_name)
             return False
