@@ -14,7 +14,7 @@ from httplib import CannotSendRequest
 from babelfish import Language, LanguageReverseError
 from guessit import guessit
 from xmlrpclib import ProtocolError
-from rarfile import NotRarFile, RarCannotExec, RarFile
+from rarfile import BadRarFile, NotRarFile, RarCannotExec, RarFile
 import requests
 
 from .exceptions import ServiceUnavailable
@@ -187,6 +187,9 @@ class ProviderPool(object):
             # OpenSubtitles raises xmlrpclib.ProtocolError or SSLError when unavailable
             logger.error('Provider %r unavailable, discarding it', subtitle.provider_name)
             self.discarded_providers.add(subtitle.provider_name)
+            return False
+        except BadRarFile:
+            logger.info('Subtitle id %s is invalid, discarding it', subtitle.id)
             return False
         except:
             logger.exception('Unexpected error in provider %r, discarding it', subtitle.provider_name)
