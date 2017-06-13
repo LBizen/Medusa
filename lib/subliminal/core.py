@@ -9,6 +9,7 @@ import operator
 import os.path
 import socket
 from ssl import SSLError
+from httplib import CannotSendRequest
 
 from babelfish import Language, LanguageReverseError
 from guessit import guessit
@@ -82,7 +83,7 @@ class ProviderPool(object):
             self.initialized_providers[name].terminate()
         except (requests.Timeout, socket.timeout):
             logger.error('Provider %r timed out, improperly terminated', name)
-        except (ServiceUnavailable, ProtocolError, SSLError):
+        except (ServiceUnavailable, ProtocolError, SSLError, CannotSendRequest):
             # OpenSubtitles raises xmlrpclib.ProtocolError or SSLError when unavailable
             logger.error('Provider %r unavailable, improperly terminated', name)
         except:
@@ -124,7 +125,7 @@ class ProviderPool(object):
             return self[provider].list_subtitles(video, provider_languages)
         except (requests.Timeout, socket.timeout):
             logger.error('Provider %r timed out', provider)
-        except (ServiceUnavailable, ProtocolError, SSLError):
+        except (ServiceUnavailable, ProtocolError, SSLError, CannotSendRequest):
             # OpenSubtitles raises xmlrpclib.ProtocolError or SSLError when unavailable
             logger.error('Provider %r unavailable', provider)
         except:
@@ -182,7 +183,7 @@ class ProviderPool(object):
             logger.error('Provider %r timed out, discarding it', subtitle.provider_name)
             self.discarded_providers.add(subtitle.provider_name)
             return False
-        except (ServiceUnavailable, ProtocolError, SSLError):
+        except (ServiceUnavailable, ProtocolError, SSLError, CannotSendRequest):
             # OpenSubtitles raises xmlrpclib.ProtocolError or SSLError when unavailable
             logger.error('Provider %r unavailable, discarding it', subtitle.provider_name)
             self.discarded_providers.add(subtitle.provider_name)
