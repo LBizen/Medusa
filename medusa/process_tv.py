@@ -642,7 +642,8 @@ class ProcessResult(object):
         if release_names:
             # Log 'release' or 'releases'
             s = 's' if len(release_names) > 1 else ''
-            release_names = ', '.join(release_names)
+            # TODO: determine if None in release_names is allowed
+            release_names = ', '.join((str(name) for name in release_names))
         else:
             s = ''
             release_names = 'N/A'
