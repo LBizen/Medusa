@@ -12,10 +12,6 @@
 
 <%namespace file="/inc_defs.mako" import="renderQualityPill"/>
 
-<div class="clearAll"></div>
-<div id="summaryBackground" class="shadow"></div>
-<div id="checkboxControlsBackground" class="shadow"></div>
-
 <div class="row">
     <div id="showtitle" class="col-lg-12" data-showname="${show.name}">
         <div>

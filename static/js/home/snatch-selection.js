@@ -1,4 +1,6 @@
 MEDUSA.home.snatchSelection = function() {
+    $('#checkboxControlsBackground, #summaryBackground').show();
+
     $('.imdbPlot').on('click', function() {
         $(this).prev('span').toggle();
         if ($(this).html() === '..show less') {
