@@ -12,8 +12,12 @@
 
 <%namespace file="/inc_defs.mako" import="renderQualityPill"/>
 
+<div class="clearAll"></div>
+<div id="summaryBackground" class="shadow"></div>
+<div id="checkboxControlsBackground" class="shadow"></div>
+
 <div class="row">
-    <div id="showtitle" class="col-lg-12 col-md-12 col-sm-12 col-xs-12" data-showname="${show.name}">
+    <div id="showtitle" class="col-lg-12" data-showname="${show.name}">
         <div>
             <h1 class="title" id="scene_exception_${show.indexerid}"><a href="home/displayShow?show=${show.indexerid}" class="snatchTitle">${show.name}</a></h1>
         </div>
@@ -80,14 +84,9 @@
     </div>
 </div>
 % endif
-</div>
 
-
-<div id="summaryBackground" class="shadow"></div>
-<div id="checkboxControlsBackground" class="shadow"></div>
-
-<div id="content-col" class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
-    <div id="container-display-show" class="col-md-12">
+<div class="row">
+    <div id="container-display-show-header" class="container-display-show-table col-lg-12">
         <div class="show-poster-container">
             <div class="row">
                 <div class="image-flex-container col-md-12">
@@ -253,47 +252,48 @@
             </div> <!-- end of row -->
         </div> <!-- show-info-container -->
     </div> <!-- end of col -->
-    <div id="container-display-show" class="col-md-12">
+    </div> <!-- end of row -->
+    <div class="row">
+    <div class="col-lg-12">
+    <div id="container-display-show-checkbox-controls" class="container-display-show-table">
     % if (action == "displayShow"):
-        <div class="row"> <!-- Checkbox filter controls -->
-            <div class="col-lg-12" id="checkboxControls">
-                <div class="key">
-                    <div class="row">
-                        <div id="key-padding" class="pull-left top-5">
-                            <% total_snatched = ep_counts[Overview.SNATCHED] + ep_counts[Overview.SNATCHED_PROPER] + ep_counts[Overview.SNATCHED_BEST] %>
-                            <label for="wanted"><span class="wanted"><input type="checkbox" id="wanted" checked="checked" /> Wanted: <b>${ep_counts[Overview.WANTED]}</b></span></label>
-                            <label for="qual"><span class="qual"><input type="checkbox" id="qual" checked="checked" /> Allowed: <b>${ep_counts[Overview.QUAL]}</b></span></label>
-                            <label for="good"><span class="good"><input type="checkbox" id="good" checked="checked" /> Preferred: <b>${ep_counts[Overview.GOOD]}</b></span></label>
-                            <label for="skipped"><span class="skipped"><input type="checkbox" id="skipped" checked="checked" /> Skipped: <b>${ep_counts[Overview.SKIPPED]}</b></span></label>
-                            <label for="snatched"><span class="snatched"><input type="checkbox" id="snatched" checked="checked" /> Snatched: <b>${total_snatched}</b></span></label>
-                            <button class="btn seriesCheck">Select Episodes</button>
-                            <button class="btn clearAll">Clear</button>
-                        </div>
-                        <div class="pull-lg-right top-5">
-                            <select id="statusSelect" class="form-control form-control-inline input-sm-custom input-sm-smallfont">
-                            <option selected value="">Change selected to:</option>
-                            <option value=""">--------------------------------------------</option>
-                            <% availableStatus = [WANTED, SKIPPED, IGNORED, FAILED] %>
-                            % if not app.USE_FAILED_DOWNLOADS:
-                            <% availableStatus.remove(FAILED) %>
-                            % endif
-                            % for cur_status in availableStatus + Quality.DOWNLOADED + Quality.ARCHIVED:
-                                % if cur_status not in [DOWNLOADED, ARCHIVED]:
-                                <option value="${cur_status}">${statusStrings[cur_status]}</option>
-                                % endif
-                            % endfor
-                            </select>
-                            <input type="hidden" id="series_slug" value="${show.slug}" />
-                            <input type="hidden" id="showID" value="${show.indexerid}" />
-                            <input type="hidden" id="indexer" value="${show.indexer}" />
-                            <input class="btn" type="button" id="changeStatus" value="Go" />
-                        </div>
-                    </div> <!-- end of row -->
-                </div> <!-- end of key -->
-            </div> <!-- checkboxControls -->
-        </div> <!-- end of row -->
+        <div class="col-lg-12" id="checkboxControls">
+            <div class="key">
+                <div id="key-padding" class="pull-left top-5">
+                    <% total_snatched = ep_counts[Overview.SNATCHED] + ep_counts[Overview.SNATCHED_PROPER] + ep_counts[Overview.SNATCHED_BEST] %>
+                    <label for="wanted"><span class="wanted"><input type="checkbox" id="wanted" checked="checked" /> Wanted: <b>${ep_counts[Overview.WANTED]}</b></span></label>
+                    <label for="qual"><span class="qual"><input type="checkbox" id="qual" checked="checked" /> Allowed: <b>${ep_counts[Overview.QUAL]}</b></span></label>
+                    <label for="good"><span class="good"><input type="checkbox" id="good" checked="checked" /> Preferred: <b>${ep_counts[Overview.GOOD]}</b></span></label>
+                    <label for="skipped"><span class="skipped"><input type="checkbox" id="skipped" checked="checked" /> Skipped: <b>${ep_counts[Overview.SKIPPED]}</b></span></label>
+                    <label for="snatched"><span class="snatched"><input type="checkbox" id="snatched" checked="checked" /> Snatched: <b>${total_snatched}</b></span></label>
+                    <button class="btn seriesCheck">Select Episodes</button>
+                    <button class="btn clearAll">Clear</button>
+                </div>
+                <div class="pull-lg-right top-5">
+                    <select id="statusSelect" class="form-control form-control-inline input-sm-custom input-sm-smallfont">
+                    <option selected value="">Change selected to:</option>
+                    <option value=""">--------------------------------------------</option>
+                    <% availableStatus = [WANTED, SKIPPED, IGNORED, FAILED] %>
+                    % if not app.USE_FAILED_DOWNLOADS:
+                    <% availableStatus.remove(FAILED) %>
+                    % endif
+                    % for cur_status in availableStatus + Quality.DOWNLOADED + Quality.ARCHIVED:
+                        % if cur_status not in [DOWNLOADED, ARCHIVED]:
+                        <option value="${cur_status}">${statusStrings[cur_status]}</option>
+                        % endif
+                    % endfor
+                    </select>
+                    <input type="hidden" id="series_slug" value="${show.slug}" />
+                    <input type="hidden" id="showID" value="${show.indexerid}" />
+                    <input type="hidden" id="indexer" value="${show.indexer}" />
+                    <input class="btn" type="button" id="changeStatus" value="Go" />
+                </div>
+            </div> <!-- end of key -->
+        </div> <!-- checkboxControls -->
     % else:
         &nbsp;
     % endif
-    </div> <!-- end of col -->
+    </div> <!-- end of container-display-show-table -->
+    </div> <!-- /col-lg-12 -->
+</div> <!-- end of row -->
 <div>&nbsp;</div>

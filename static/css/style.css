@@ -1081,8 +1081,9 @@ displayShow.mako
     overflow-y: auto;
 }
 
-div#container-display-show {
+.container-display-show-table {
     display: table;
+    width: 100%;
 }
 
 .show-poster-container {

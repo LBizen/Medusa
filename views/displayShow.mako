@@ -21,10 +21,6 @@
 <%namespace file="/inc_defs.mako" import="renderQualityPill"/>
 <input type="hidden" id="showID" value="${show.indexerid}" />
 <input type="hidden" id="series_slug" value="${show.slug}" />
-<div class="clearfix"></div><!-- div.clearfix //-->
-</div>
-<div class="clearfix"></div>
-<div id="content-col" class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
 
 <%include file="/partials/showheader.mako"/>
 
